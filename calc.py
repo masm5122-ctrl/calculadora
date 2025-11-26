@@ -22,11 +22,15 @@ class CalcUI(QMainWindow):
         self.btn_8.clicked.connect(lambda: self.addNumber(8))
         self.btn_9.clicked.connect(lambda: self.addNumber(9))
         self.btn_0.clicked.connect(lambda: self.addNumber(0))
-
         self.btn_virgula.clicked.connect( self.addComma)
       
         self.btn_limpar.clicked.connect(self.cleanDisplay)
         self.btn_igual.clicked.connect(self.showResult)
+
+        self.btn_mais.clicked.connect(self.setOperation)
+        self.btn_menos.clicked.connect(self.setOperation)
+        self.btn_div.clicked.connect(self.setOperation)
+        self.btn_mult.clicked.connect(self.setOperation)
 
 
     def addComma(self):
@@ -49,22 +53,37 @@ class CalcUI(QMainWindow):
     def cleanDisplay(self):
         self.display.setText("0")
 
-    def showResult(self):
-        num1 = self.display.text()
-        if "," in num1:
-            num1 = num1.replace(',','.')
-            num1 = float(num1)
+    def getNumberDisplay(self, display):
+        num = display.text()
+        if "," in num:
+            num = num.replace(',','.')
+            num = float(num)
         else:
-            num1 = int(num1)
-
-
-
-        num2 = 2     
-        result = somar(num1,num2)
-        print(f'Numero:{result}')
-        print("tipo:", type(result))
-
+            num = int(num)
+        return(num)
     
+    def setNumberDisplay(self, number):
+        number = str(number)
+        number = number.replace('.',',')
+        self.display.setText(number)
+
+    def setCalcDisplay(self, num1, num2, operation):
+        num1 = str(num1).replace('.',',')
+        num1 = str(num1).replace('.',',')
+        result =f'{num1} {operation} {num2} ='
+        self.display2.setText(result)
+
+    def showResult(self):
+        num1 = self.getNumberDisplay(self.display)
+        num2 = self.getNumberDisplay(self.display2)
+        result = somar(num1,num2)
+        self.setNumberDisplay(result)
+      
+
+    def setOperation(self):
+        result = self.display.text()
+        self.display2.setText(result)
+        self.cleanDisplay()
 
 
         
