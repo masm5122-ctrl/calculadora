@@ -294,7 +294,7 @@ background-color: lightgray;
      </font>
     </property>
     <property name="text">
-     <string>div</string>
+     <string>÷</string>
     </property>
     <property name="shortcut">
      <string>/</string>

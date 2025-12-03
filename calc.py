@@ -1,7 +1,13 @@
 from PyQt5.QtWidgets import QMainWindow, QShortcut
 from PyQt5.uic import loadUi
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QKeySequence
 from funcoes import somar
+
+from funcoes import (
+    somar, subtrair, multiplicar, dividir,
+    porcentagem
+    )
 
 
 class CalcUI(QMainWindow):
@@ -10,6 +16,17 @@ class CalcUI(QMainWindow):
         super().__init__(**kwargs)
         loadUi("calculadora_iphone.ui", self)
         self.show()
+
+        self.num1 = 0
+        self.num2 = 0
+        self.selectedOperation = None
+        self.operationList = {
+            "+": somar,
+            "-": subtrair,
+            "x": multiplicar,
+            "÷": dividir,
+
+        }
 
         #QShortcut(QKeySequence("0"), self).activated.connect(lambda: self.addNumber(0))
         self.btn_1.clicked.connect(lambda: self.addNumber(1))
@@ -23,14 +40,16 @@ class CalcUI(QMainWindow):
         self.btn_9.clicked.connect(lambda: self.addNumber(9))
         self.btn_0.clicked.connect(lambda: self.addNumber(0))
         self.btn_virgula.clicked.connect( self.addComma)
-      
+
+        self.btn_maismenos.clicked.connect(self.invert)
         self.btn_limpar.clicked.connect(self.cleanDisplay)
         self.btn_igual.clicked.connect(self.showResult)
+        self.btn_porcetagem.clicked.connect(self.porcent)
 
-        self.btn_mais.clicked.connect(self.setOperation)
-        self.btn_menos.clicked.connect(self.setOperation)
-        self.btn_div.clicked.connect(self.setOperation)
-        self.btn_mult.clicked.connect(self.setOperation)
+        self.btn_mais.clicked.connect(lambda:self.setOperation("+"))
+        self.btn_menos.clicked.connect(lambda:self.setOperation("-"))
+        self.btn_div.clicked.connect(lambda:self.setOperation("÷"))
+        self.btn_mult.clicked.connect(lambda:self.setOperation("x"))
 
 
     def addComma(self):
@@ -43,15 +62,26 @@ class CalcUI(QMainWindow):
 
 
     def addNumber(self, numero):
-        primeiro = self.display.text()
-        if primeiro == '0':
+        self.btn_limpar.setText("<=")
+        ultimo = self.display.text()
+        if ultimo == '0':
             resultado = str(numero)
         else:
-            resultado = primeiro + str(numero)
+            resultado = ultimo + str(numero)
         self.display.setText(resultado)
 
     def cleanDisplay(self):
-        self.display.setText("0")
+        if self.btn_limpar.text() == "AC":
+            self.display.setText("0")
+            self.display2.setText("0")
+            self.num2 = 0
+        else:
+            ultimo = self.display.text()[:-1]
+            if len(ultimo) == 0:
+                ultimo = "0"
+                self.btn_limpar.setText("AC")
+            self.display.setText(ultimo)
+        
 
     def getNumberDisplay(self, display):
         num = display.text()
@@ -74,16 +104,46 @@ class CalcUI(QMainWindow):
         self.display2.setText(result)
 
     def showResult(self):
-        num1 = self.getNumberDisplay(self.display)
-        num2 = self.getNumberDisplay(self.display2)
-        result = somar(num1,num2)
+        if self.num2 == 0:
+            self.num2 = self.getNumberDisplay(self.display)
+
+        num1 = self.num1
+        num2 = self.num2
+
+        operation_simbol = self.operationList.get(self.selectedOperation )
+        result = operation_simbol(num1,num2)
+        self.num1 = result
+
         self.setNumberDisplay(result)
+        self.setCalcDisplay(num1, num2, self.selectedOperation)
+        self.btn_limpar.setText("AC")
       
 
-    def setOperation(self):
+    def setOperation(self, operation_simbol:str):
+        self.selectedOperation = operation_simbol
+        self.num1 = self.getNumberDisplay(self.display)
+        self.num2 = 0
         result = self.display.text()
         self.display2.setText(result)
-        self.cleanDisplay()
+        self.display.setText("0")
+
+    def invert(self):
+        numero = int(self.display.text())
+        numero = str(numero * -1)
+        self.display.setText(numero)
+
+    def porcent(self):
+        porc = self.getNumberDisplay(self.display)
+        result = porcentagem (self.num1, porc)
+        self.setNumberDisplay(result)
+            
+
+
+        
+
+       
+
+
 
 
         
