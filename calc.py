@@ -9,12 +9,19 @@ from funcoes import (
     porcentagem
     )
 
+from os import path
+import sys
+
+def loadFile(file):
+    base_path = getattr(sys, "_MEIPASS", path.dirname(path.abspath(__file__)))
+    return path.join(base_path, file)
+
 
 class CalcUI(QMainWindow):
 
     def __init__(self, **kwargs): 
         super().__init__(**kwargs)
-        loadUi("calculadora_iphone.ui", self)
+        loadUi(loadFile("calculadora_iphone.ui"), self)
         self.show()
 
         self.num1 = 0
@@ -165,6 +172,8 @@ class CalcUI(QMainWindow):
         self.btn_igual.setEnabled(True)
         self.display.setText("0")
         self.display2.setText("0")
+        self.num1 = 0
+        self.num2 = 0
         self.selectedOperation = None
     
 
