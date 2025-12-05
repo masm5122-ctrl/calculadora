@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QMainWindow, QShortcut
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QKeySequence
-from funcoes import somar
+
 
 from funcoes import (
     somar, subtrair, multiplicar, dividir,
@@ -19,14 +19,17 @@ class CalcUI(QMainWindow):
 
         self.num1 = 0
         self.num2 = 0
+        self.finish = False
+
         self.selectedOperation = None
         self.operationList = {
             "+": somar,
             "-": subtrair,
             "x": multiplicar,
             "÷": dividir,
-
         }
+
+        
 
         #QShortcut(QKeySequence("0"), self).activated.connect(lambda: self.addNumber(0))
         self.btn_1.clicked.connect(lambda: self.addNumber(1))
@@ -60,11 +63,11 @@ class CalcUI(QMainWindow):
             resultado = ultimo + ","
         self.display.setText(resultado)
 
-
     def addNumber(self, numero):
         self.btn_limpar.setText("<=")
         ultimo = self.display.text()
-        if ultimo == '0':
+        if ultimo == '0' or self.finish :
+            self.finish = False
             resultado = str(numero)
         else:
             resultado = ultimo + str(numero)
@@ -74,6 +77,7 @@ class CalcUI(QMainWindow):
         if self.btn_limpar.text() == "AC":
             self.display.setText("0")
             self.display2.setText("0")
+            self.num1 = 0
             self.num2 = 0
         else:
             ultimo = self.display.text()[:-1]
@@ -82,7 +86,6 @@ class CalcUI(QMainWindow):
                 self.btn_limpar.setText("AC")
             self.display.setText(ultimo)
         
-
     def getNumberDisplay(self, display):
         num = display.text()
         if "," in num:
@@ -104,21 +107,24 @@ class CalcUI(QMainWindow):
         self.display2.setText(result)
 
     def showResult(self):
-        if self.num2 == 0:
-            self.num2 = self.getNumberDisplay(self.display)
+        if self.selectedOperation:
+            if self.num2 == 0:
+                self.num2 = self.getNumberDisplay(self.display)
 
-        num1 = self.num1
-        num2 = self.num2
+            num1 = self.num1
+            num2 = self.num2
 
-        operation_simbol = self.operationList.get(self.selectedOperation )
-        result = operation_simbol(num1,num2)
-        self.num1 = result
+            operation_simbol = self.operationList.get(self.selectedOperation )
+            result = operation_simbol(num1,num2)
+            self.num1 = result
 
-        self.setNumberDisplay(result)
-        self.setCalcDisplay(num1, num2, self.selectedOperation)
-        self.btn_limpar.setText("AC")
-      
-
+            self.setNumberDisplay(result)
+            self.setCalcDisplay(num1, num2, self.selectedOperation)
+            self.btn_limpar.setText("AC")
+            self.finish = True
+            if isinstance(result, str):
+                self.timerClean()
+        
     def setOperation(self, operation_simbol:str):
         self.selectedOperation = operation_simbol
         self.num1 = self.getNumberDisplay(self.display)
@@ -128,15 +134,40 @@ class CalcUI(QMainWindow):
         self.display.setText("0")
 
     def invert(self):
-        numero = int(self.display.text())
+        numero = self.getNumberDisplay(self.display)
         numero = str(numero * -1)
-        self.display.setText(numero)
+        self.setNumberDisplay(numero)
 
     def porcent(self):
         porc = self.getNumberDisplay(self.display)
         result = porcentagem (self.num1, porc)
         self.setNumberDisplay(result)
             
+    def timerClean(self):
+        self.btn_mais.setEnabled(False)
+        self.btn_menos.setEnabled(False)
+        self.btn_mult.setEnabled(False)
+        self.btn_div.setEnabled(False)
+        self.btn_maismenos.setEnabled(False)
+        self.btn_porcetagem.setEnabled(False)
+        self.btn_igual.setEnabled(False)
+
+        self.cronometro = QTimer(self)
+        self.cronometro.singleShot(1000, self.timeOutClean)
+
+    def timeOutClean(self):
+        self.btn_mais.setEnabled(True)
+        self.btn_menos.setEnabled(True)
+        self.btn_mult.setEnabled(True)
+        self.btn_div.setEnabled(True)
+        self.btn_maismenos.setEnabled(True)
+        self.btn_porcetagem.setEnabled(True)
+        self.btn_igual.setEnabled(True)
+        self.display.setText("0")
+        self.display2.setText("0")
+        self.selectedOperation = None
+    
+
 
 
         

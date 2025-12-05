@@ -21,5 +21,7 @@ def dividir(num1, num2):
     return num1/num2
 
 def porcentagem(num1, porcent):
+    if num1 == 0:
+        return porcent/100
     return num1 * (porcent/100)
 

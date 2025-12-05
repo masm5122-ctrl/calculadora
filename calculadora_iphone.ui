@@ -18,6 +18,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>vector-calculator-icon.jpg</normaloff>vector-calculator-icon.jpg</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true">#centralwidget{
 	background: black;
